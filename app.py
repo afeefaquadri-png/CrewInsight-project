@@ -9,125 +9,170 @@ import hashlib
 from typing import List, Dict, Any
 import random
 
-# Page configuration
+
 st.set_page_config(
-    page_title="CrewInsight - Business Analyst Agent",
-    page_icon="📊",
+    page_title="CrewInsight",
+    page_icon="🔍",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for professional styling
+
 def load_css():
     st.markdown("""
     <style>
-    /* Main background gradient */
-    .stApp {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+    /* ===============================
+       GLOBAL DARK THEME
+    =============================== */
+
+    html, body, [class*="stApp"] {
+        background-color: #020617;
+        color: #e5e7eb;
+        font-family: "Inter", sans-serif;
     }
-    
-    /* Content area styling */
-    .main .block-container {
-        background-color: rgba(255, 255, 255, 0.95);
-        padding: 2rem;
-        border-radius: 15px;
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-        backdrop-filter: blur(4px);
-        border: 1px solid rgba(255, 255, 255, 0.18);
+
+    /* Remove Streamlit default padding */
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
     }
-    
-    /* Header styling */
-    h1 {
-        color: #667eea;
+
+    /* ===============================
+       SIDEBAR
+    =============================== */
+
+    section[data-testid="stSidebar"] {
+        background-color: #020617;
+        border-right: 1px solid #1e293b;
+    }
+
+    section[data-testid="stSidebar"] * {
+        color: #e5e7eb !important;
+    }
+
+    /* ===============================
+       HEADINGS & TEXT
+    =============================== */
+
+    h1, h2, h3, h4 {
+        color: #f8fafc;
         font-weight: 700;
-        text-align: center;
-        padding: 1rem 0;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
     }
-    
-    h2, h3 {
-        color: #764ba2;
-        font-weight: 600;
+
+    p, span, label {
+        color: #cbd5f5;
     }
-    
-    /* Sidebar styling */
-    .css-1d391kg, [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+
+    /* ===============================
+       INPUTS
+    =============================== */
+
+    input, textarea {
+        background-color: #020617 !important;
+        color: #f8fafc !important;
+        border: 1px solid #1e293b !important;
+        border-radius: 10px !important;
     }
-    
-    .css-1d391kg p, [data-testid="stSidebar"] p,
-    .css-1d391kg label, [data-testid="stSidebar"] label {
-        color: white !important;
+
+    input::placeholder {
+        color: #64748b;
     }
-    
-    /* Button styling */
+
+    /* ===============================
+       BUTTONS
+    =============================== */
+
     .stButton > button {
-        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(90deg, #6366f1, #8b5cf6);
         color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 0.5rem 2rem;
+        border-radius: 12px;
+        padding: 10px 18px;
         font-weight: 600;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px 0 rgba(102, 126, 234, 0.35);
+        border: none;
+        transition: all 0.2s ease-in-out;
     }
-    
+
     .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px 0 rgba(102, 126, 234, 0.5);
+        transform: translateY(-1px);
+        opacity: 0.9;
     }
-    
-    /* Metric cards */
-    [data-testid="stMetricValue"] {
-        font-size: 2rem;
-        color: #667eea;
-        font-weight: 700;
-    }
-    
-    /* Info boxes */
+
+    /* ===============================
+       ALERTS (SUCCESS / ERROR / INFO)
+    =============================== */
+
     .stAlert {
-        border-radius: 10px;
-        border-left: 5px solid #667eea;
+        background-color: #020617;
+        border: 1px solid #1e293b;
+        border-radius: 12px;
+        color: #e5e7eb;
     }
-    
-    /* Tab styling */
-    .stTabs [data-baseweb="tab-list"] {
+
+    /* ===============================
+       TABS (FIX INVISIBLE TABS)
+    =============================== */
+
+    div[data-baseweb="tab-list"] {
+        background-color: #0f172a;
+        padding: 8px;
+        border-radius: 14px;
         gap: 8px;
     }
-    
-    .stTabs [data-baseweb="tab"] {
-        background-color: rgba(102, 126, 234, 0.1);
-        border-radius: 8px 8px 0 0;
-        padding: 10px 20px;
-        color: #667eea;
+
+    button[data-baseweb="tab"] {
+        background-color: #020617;
+        color: #e5e7eb !important;
+        border-radius: 12px;
+        padding: 10px 18px;
         font-weight: 600;
+        border: 1px solid #1e293b;
+        transition: all 0.2s ease-in-out;
     }
-    
-    .stTabs [aria-selected="true"] {
-        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+
+    button[data-baseweb="tab"]:hover {
+        background-color: #1e293b;
+        color: #ffffff !important;
+    }
+
+    button[data-baseweb="tab"][aria-selected="true"] {
+        background: linear-gradient(90deg, #6366f1, #8b5cf6);
+        color: white !important;
+        border: none;
+    }
+
+    /* ===============================
+       DOWNLOAD BUTTON FIX
+    =============================== */
+
+    .stDownloadButton > button {
+        background: linear-gradient(90deg, #22c55e, #16a34a);
         color: white;
-    }
-    
-    /* Data frame styling */
-    .dataframe {
-        border-radius: 10px;
-        overflow: hidden;
-    }
-    
-    /* Progress bar */
-    .stProgress > div > div > div > div {
-        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    /* Expander */
-    .streamlit-expanderHeader {
-        background-color: rgba(102, 126, 234, 0.1);
-        border-radius: 8px;
-        color: #667eea;
+        border-radius: 12px;
         font-weight: 600;
+        padding: 10px 18px;
     }
+
+    /* ===============================
+       SCROLLBAR
+    =============================== */
+
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #020617;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 10px;
+    }
+
     </style>
     """, unsafe_allow_html=True)
+
 
 # Initialize session state
 def init_session_state():
@@ -362,7 +407,7 @@ def plot_trend_confidence(trends: List[Dict]):
         xaxis_title="Confidence Level",
         yaxis_title="Identified Trends",
         height=400,
-        template="plotly_white",
+        template="plotly_dark",
         showlegend=False
     )
     
@@ -418,7 +463,7 @@ def create_timeline_chart(data_points: List[Dict]):
     
     fig.update_layout(
         showlegend=True,
-        template="plotly_white"
+        template="plotly_dark"
     )
     
     return fig
@@ -914,6 +959,10 @@ Response:
             <p>© 2024 CrewInsight. All rights reserved.</p>
         </div>
         """, unsafe_allow_html=True)
+
+if __name__ == "__main__":
+    main()
+
 
 if __name__ == "__main__":
     main()
